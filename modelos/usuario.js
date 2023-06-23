@@ -8,88 +8,52 @@ const UsuarioSchema = Schema({
         type: String,
         required: true
     },
-    email:{
+    email: {
         type: String,
         required: true,
         unique: true
     },
-    password:{
+    password: {
         type: String,
         required: true
     },
-    code:{
+    code: {
         type: String,
         required: true
     },
-    phone:{
+    phone: {
         type: Number,
         required: true
     },
-    countryisoCode:{
+    countryisoCode: {
         type: String,
         required: true
     },
-    language:{
-        type: String,
-        default: 'español'
-    },
-    country:{
+    country: {
         type: String,
         required: true
     },
-    city:{
+    img: {
         type: String,
-        required: true
+        default: '/profile.png'
     },
-    img:{
-        type: String,
-    },
-    role:{
+    role: {
         type: String,
         required: true,
         default: 'USER_ROLE'
     },
-    google:{
+    google: {
         type: Boolean,
         default: false
     },
-    status:{
+    status: {
         type: Number,
         default: 1 // 1 = activo, 0 = inactivo, 2 = bloqueado
-    },
-    active:{
-        type: Boolean,
-        default: false
-    },
-    max_sessions:{
-        type: Number,
-        default: 1
     }
 });
-// Este metodo es opcional, es para modificar el objeto de salida
-// cambia el identificador del id por uid de la response, y 
-// hace que no retorne el password también 
-UsuarioSchema.method('toJSON', function(){
-    const { __v, _id, password, ...object} = this.toObject();
-    object.uid=_id;
+UsuarioSchema.method('toJSON', function () {
+    const { __v, _id, password, ...object } = this.toObject();
+    object.id = _id;
     return object;
-})
-
-UsuarioSchema.method('toCustomA', function(){
-    const { __v, _id, ...object} = this.toObject();
-    const exit = {
-        uid: _id,
-        img: object.img,
-        name: object.name,
-        email: object.email,
-        code: object.code,
-        phone: object.phone,
-        country: object.country,
-        countryisoCode: object.countryisoCode,
-        city: object.city,
-        language: object.language,
-        role: object.role,
-    }
-    return exit;
 })
 module.exports = model('Usuario', UsuarioSchema);

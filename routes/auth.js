@@ -36,7 +36,4 @@ router.post('/recuperacion/key', [
     validarCampos
 ], recuperarCuentaConKey);
 
-// renovar el token
-router.get('/renew', validarJWT  , renewToken);
-
 module.exports = router;

@@ -1,21 +1,16 @@
 
 const bcrypt = require('bcryptjs/dist/bcrypt');
 // Para tener las ayudas de express pero no es necesario
-const { response } = require('express');
-const res = require('express/lib/response');
 const { generarJWT } = require('../helpers/jwt');
 const Usuario = require('../modelos/usuario');
 const { makeid } = require('../helpers/commons');
 const Recuperacion = require('../modelos/recuperacion');
 const Sesion = require('../modelos/sesion');
-const Subscrito = require('../modelos/subscrito')
-const { getMenuFrontEnd } = require('../helpers/menu-frontend.js');
 const { sendMail } = require('../helpers/mailer');
-const login = async (req, res = response) => {
-
+const login = async (req, res) => {
     const { email, password } = req.body;
-
     try {
+
         // Verificar email
         const usuarioDB = await Usuario.findOne({ email });
         if (!usuarioDB) {
@@ -24,9 +19,9 @@ const login = async (req, res = response) => {
                 code: 25
             })
         }
+
         // Verificar contrase;a:  regresa true si hace match o false si no
         const validPassword = bcrypt.compareSync(password, usuarioDB.password);
-
         if (!validPassword) {
             return res.status(404).json({
                 ok: false,
@@ -36,7 +31,6 @@ const login = async (req, res = response) => {
 
         // Generar el JWT
         const token = await generarJWT(usuarioDB._id);
-        const activo = usuarioDB.active;
         const existeSesion = await Sesion.findOne({ id: usuarioDB._id, closed: false });
         if (existeSesion) {
             let { closed, ...campos } = existeSesion.toJSON();
@@ -45,31 +39,15 @@ const login = async (req, res = response) => {
                 new: true,
             });
         }
+
         const usuario = new Sesion({ user: usuarioDB._id, token: token }, { versionKey: false });
         await usuario.save();
-        const subs = await Subscrito.find({ user: usuarioDB._id }).sort({ issued: 1 });
-        let finalSubs = [];
-        Promise.all(
-            await subs.map((su) => {
-                return new Promise((resolve0, _) => {
-                    resolve0(su.toJSON());
-                }).then((sub) => {
-                    finalSubs.unshift(sub);
-                });
-            })
-        ).then(async () => {
-            const exit = finalSubs.sort(function (a, b) {
-                return new Date(b.issued) - new Date(a.issued);
-            })
-            res.json({
-                ok: true,
-                token,
-                userData: await usuarioDB.toJSON(),
-                subscriptions: exit,
-                activo: activo,
-                menu: getMenuFrontEnd(usuarioDB.role)
-            })
-        });
+        
+        res.json({
+            ok: true,
+            token,
+            userData: await usuarioDB.toJSON()
+        })
     } catch (error) {
         res.status(500).json({
             ok: false,
@@ -131,45 +109,6 @@ const login = async (req, res = response) => {
 
 
 // }
-
-const renewToken = async (req, res=response)=>{
-
-    const uid=req.uid;
-
-    const usuarioDB = await Usuario.findById(uid);
-    if(!usuarioDB){
-        return res.status(404).json({
-            ok: false,
-            code : 25
-        })
-    }
-
-    //Generar el Token - JWT
-    const token = await generarJWT(uid);
-
-    // Obtener el usuario por UID
-    // const usuario = await Usuario.findById(uid);
-
-    //const activo= usuarioDB.active;
-    const existeSesion = await Sesion.findOne({ id: usuarioDB.id, closed: false });
-    if (existeSesion) {
-        let { closed, ...campos} = existeSesion.toJSON();
-        campos.closed = true; 
-        const sesionActualizada = await Sesion.findByIdAndUpdate(existeSesion.id, campos, {
-            new: true,
-        });
-    }
-    const usuario = new Sesion({ user: usuarioDB.id, token:token  }, { versionKey: false });
-    await usuario.save();
-
-    res.json({
-        ok: true,
-        uid,
-        usuarioDB,
-        token,
-        menu: getMenuFrontEnd(usuario.role)
-    })
-}
 
 const recuperarCuenta = async (req, res) => {
 
@@ -257,7 +196,6 @@ const recuperarCuentaConKey = async (req, res) => {
 module.exports = {
     login,
     // googleSignIn, 
-    renewToken,
     recuperarCuenta,
     recuperarCuentaConCodigo,
     recuperarCuentaConKey

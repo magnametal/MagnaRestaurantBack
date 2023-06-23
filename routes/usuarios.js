@@ -16,31 +16,17 @@ const { actualizarPerfilUsuario, getUsuarioProfile, getUsuarios, crearUsuario, a
 const { validarJWT, validarADMIN_ROLE, validarADMIN_ROLE_o_MismoUsuario } = require('../middlewares/validar-jwt');
 
 const router = Router();
-getSearchUsuarios
-
-// buscar usuarios por query
-router.get('/search/:query', getSearchUsuarios);
-
-// obtener todos los usuarios
-router.get('/', validarJWT, getUsuarios);
-
-// obtener perfil usuario
-router.post('/perfil',[
-    validarJWT,
-    check('email', 'El email es Obligatorio').isEmail(),
-],getUsuarioProfile);
 
 // crear usuario
 router.post('/',[
     check('name', 'El nombre es Obligatorio').not().isEmpty(),
     check('password', 'El password es Obligatorio').not().isEmpty(),
     check('email', 'El email es Obligatorio').isEmail(),
-    check('city', 'La ciudad es Obligatoria').not().isEmpty(),
     check('country', 'El pais es Obligatorio').not().isEmpty(),
     check('code', 'El codigo es Obligatorio').not().isEmpty(),
     check('phone', 'El telefono es Obligatorio').not().isEmpty(),
     validarCampos
-],crearUsuario);
+], crearUsuario);
 
 // actualizar usuario
 router.put('/admin/:id',[
@@ -49,19 +35,17 @@ router.put('/admin/:id',[
     check('name', 'El nombre es Obligatorio').not().isEmpty(),
     check('password', 'El password es Obligatorio').not().isEmpty(),
     check('email', 'El email es Obligatorio').isEmail(),
-    check('city', 'La ciudad es Obligatoria').not().isEmpty(),
     check('country', 'El pais es Obligatorio').not().isEmpty(),
     check('code', 'El codigo es Obligatorio').not().isEmpty(),
     check('phone', 'El telefono es Obligatorio').not().isEmpty(),
-],actualizarUsuario);
+], actualizarUsuario);
 
-// actualizar usuario
+// actualizar mi perfil
 router.put('/perfil/:id',[
     validarJWT,
     validarADMIN_ROLE_o_MismoUsuario,
     check('name', 'El nombre es Obligatorio').not().isEmpty(),
     check('email', 'El email es Obligatorio').isEmail(),
-    check('city', 'La ciudad es Obligatoria').not().isEmpty(),
     check('country', 'El pais es Obligatorio').not().isEmpty(),
     check('code', 'El codigo es Obligatorio').not().isEmpty(),
     check('phone', 'El telefono es Obligatorio').not().isEmpty(),
@@ -69,5 +53,5 @@ router.put('/perfil/:id',[
 ],actualizarPerfilUsuario);
 
 // eliminar usuario
-router.delete('/:id', [validarJWT, validarADMIN_ROLE], borrarUsuario);
+// router.delete('/:id', [validarJWT, validarADMIN_ROLE], borrarUsuario);
 module.exports = router;

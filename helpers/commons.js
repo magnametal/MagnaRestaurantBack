@@ -1,10 +1,7 @@
 const fs = require("fs-extra");
 const pdf = require("pdfkit");
-const QRCode = require('qrcode');
 const path = require('path');
 const moment = require("moment");
-const CertificadoDato = require("../modelos/certificadoDato");
-const Certificado = require("../modelos/certificado");
 const base64ToFile = async (base64, path, name) => {
   return new Promise((resolve, _) => {
     let filename = name + makeid(6);

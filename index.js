@@ -32,6 +32,7 @@ app.get('*', (req, res) => {
 var server = app.listen(process.env.PORT, () => {
   console.log('Servidor corriendo en puerto ' + process.env.PORT);
 })
+
 // Socket IO
 var io = require('socket.io')(server, {
   cors: {
